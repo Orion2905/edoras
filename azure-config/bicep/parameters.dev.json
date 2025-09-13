@@ -1,0 +1,33 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "projectName": {
+      "value": "edoras"
+    },
+    "environment": {
+      "value": "dev"
+    },
+    "location": {
+      "value": "West Europe"
+    },
+    "appServiceSku": {
+      "value": "B1"
+    },
+    "sqlAdminUsername": {
+      "value": "edorasadmin"
+    },
+    "sqlAdminPassword": {
+      "value": "EdorasDevSecure123!"
+    },
+    "databaseName": {
+      "value": "edoras-dev-database"
+    },
+    "databaseSku": {
+      "value": {
+        "name": "Basic",
+        "tier": "Basic"
+      }
+    }
+  }
+}
