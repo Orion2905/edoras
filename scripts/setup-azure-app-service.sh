@@ -13,12 +13,12 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Configurazione
-RESOURCE_GROUP="rg-edoras-2025"
+RESOURCE_GROUP="rg-edoras-prod"
 LOCATION="West Europe"
 APP_SERVICE_PLAN="edoras-app-service-plan"
-WEBAPP_NAME="edoras-backend-api-2025"
-KEYVAULT_NAME="edoras-keyvault-2025"
-SQL_SERVER_NAME="edoras-sql-server-2025"
+WEBAPP_NAME="edoras-backend-api"
+KEYVAULT_NAME="edoras-keyvault"
+SQL_SERVER_NAME="edoras-sql-server"
 SQL_DATABASE_NAME="edoras-db"
 SQL_ADMIN_USER="edorasadmin"
 
@@ -42,14 +42,19 @@ fi
 SUBSCRIPTION_ID=$(az account show --query id -o tsv)
 echo -e "${GREEN}✅ Login Azure OK - Subscription: $SUBSCRIPTION_ID${NC}"
 
-# 2. Creare Resource Group
-echo -e "${YELLOW}📦 Creando Resource Group...${NC}"
-az group create \
-    --name $RESOURCE_GROUP \
-    --location "$LOCATION" \
-    --output table
-
-echo -e "${GREEN}✅ Resource Group creato${NC}"
+# 2. Verificare Resource Group esistente
+echo -e "${YELLOW}📦 Verificando Resource Group esistente...${NC}"
+if az group show --name $RESOURCE_GROUP &>/dev/null; then
+    echo -e "${GREEN}✅ Resource Group $RESOURCE_GROUP esiste già${NC}"
+else
+    echo -e "${RED}❌ Resource Group $RESOURCE_GROUP non trovato${NC}"
+    echo -e "${YELLOW}Creando Resource Group...${NC}"
+    az group create \
+        --name $RESOURCE_GROUP \
+        --location "$LOCATION" \
+        --output table
+    echo -e "${GREEN}✅ Resource Group creato${NC}"
+fi
 
 # 3. Creare App Service Plan
 echo -e "${YELLOW}🏗️ Creando App Service Plan...${NC}"
