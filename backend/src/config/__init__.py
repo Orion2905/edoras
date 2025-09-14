@@ -2,7 +2,7 @@
 
 import os
 from datetime import timedelta
-from utils.keyvault import get_secret_or_env
+from ..utils.keyvault import get_secret_or_env
 
 
 class Config:
@@ -40,12 +40,8 @@ class DevelopmentConfig(Config):
     """Configurazione per ambiente di sviluppo."""
     
     DEBUG = True
-    # Azure SQL Database per development con Key Vault integration
-    SQLALCHEMY_DATABASE_URI = get_secret_or_env(
-        'database-url',
-        'DATABASE_URL',
-        'sqlite:///edoras_dev.db'  # Fallback locale
-    )
+    # Azure SQL Database per development - legge direttamente da .env
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'sqlite:///edoras_dev.db')
     SQLALCHEMY_ECHO = True
 
 
@@ -92,3 +88,19 @@ config = {
     'production': ProductionConfig,
     'default': DevelopmentConfig
 }
+
+
+def get_config(config_name=None):
+    """
+    Ottieni configurazione per environment
+    
+    Args:
+        config_name: Nome configurazione (development, production, testing)
+        
+    Returns:
+        Classe configurazione
+    """
+    if config_name is None:
+        config_name = os.getenv('FLASK_ENV', 'development')
+    
+    return config.get(config_name, config['default'])

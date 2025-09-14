@@ -39,3 +39,6 @@ Werkzeug==2.3.7
 
 # Production Server
 gunicorn==21.2.0
+
+# Azure App Service optimizations
+whitenoise==6.5.0

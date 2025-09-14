@@ -4,7 +4,7 @@ from datetime import datetime
 from flask import jsonify, current_app
 from sqlalchemy import text
 from ...extensions import db
-from utils.keyvault import get_keyvault_client
+# from utils.keyvault import get_keyvault_client  # Temporaneamente commentato
 from . import api_v1_bp
 
 
@@ -16,11 +16,19 @@ def health_check():
     Returns:
         JSON response con lo status dell'applicazione
     """
+    import os
+    
     return jsonify({
         'status': 'healthy',
-        'service': 'edoras-backend',
+        'service': 'edoras-backend-api',
         'version': '1.0.0',
-        'timestamp': datetime.utcnow().isoformat()
+        'environment': os.getenv('FLASK_ENV', 'development'),
+        'timestamp': datetime.utcnow().isoformat(),
+        'deployment': {
+            'platform': 'Azure Container Apps',
+            'region': 'West Europe',
+            'container': True
+        }
     }), 200
 
 
@@ -32,12 +40,20 @@ def detailed_health_check():
     Returns:
         JSON con stato dettagliato dei componenti
     """
+    import os
+    
     health_status = {
         'status': 'healthy',
         'timestamp': datetime.utcnow().isoformat(),
-        'service': 'Edoras API',
+        'service': 'Edoras Backend API',
         'version': '1.0.0',
-        'environment': current_app.config.get('ENV', 'unknown'),
+        'environment': os.getenv('FLASK_ENV', 'development'),
+        'deployment': {
+            'platform': 'Azure Container Apps',
+            'region': 'West Europe',
+            'container': True,
+            'auto_scaling': True
+        },
         'components': {}
     }
     
@@ -60,20 +76,25 @@ def detailed_health_check():
         }
         overall_healthy = False
     
-    # Check Key Vault
-    try:
-        kv_client = get_keyvault_client()
-        kv_health = kv_client.health_check()
-        health_status['components']['keyvault'] = kv_health
-        
-        if kv_health['status'] != 'healthy':
-            overall_healthy = False
-    except Exception as e:
-        health_status['components']['keyvault'] = {
-            'status': 'unhealthy',
-            'message': f'Key Vault check failed: {str(e)}'
-        }
-        overall_healthy = False
+    # Check Key Vault (temporaneamente disabilitato)
+    # try:
+    #     kv_client = get_keyvault_client()
+    #     kv_health = kv_client.health_check()
+    #     health_status['components']['keyvault'] = kv_health
+    #     
+    #     if kv_health['status'] != 'healthy':
+    #         overall_healthy = False
+    # except Exception as e:
+    #     health_status['components']['keyvault'] = {
+    #         'status': 'unhealthy',
+    #         'message': f'Key Vault check failed: {str(e)}'
+    #     }
+    #     overall_healthy = False
+    
+    health_status['components']['keyvault'] = {
+        'status': 'not_configured',
+        'message': 'Key Vault non ancora configurato'
+    }
     
     # Check Configuration
     config_issues = []

@@ -19,8 +19,13 @@ def create_app(config_name='development'):
     """
     app = Flask(__name__)
     
-    # Carica configurazione
-    app.config.from_object(f'src.config.{config_name}')
+    # Carica configurazione usando il nuovo sistema
+    from src.config import get_config
+    config_class = get_config(config_name)
+    app.config.from_object(config_class)
+    
+    # Configura logging per primo
+    setup_logging_config(app)
     
     # Inizializza estensioni
     initialize_extensions(app)
@@ -35,6 +40,18 @@ def create_app(config_name='development'):
     configure_error_handlers(app)
     
     return app
+
+
+def setup_logging_config(app):
+    """Configura il sistema di logging."""
+    try:
+        from .utils.logging import setup_logging, log_request_info, log_error_details
+        setup_logging(app)
+        log_request_info(app)
+        log_error_details(app)
+    except ImportError:
+        # Fallback se il modulo logging non è disponibile
+        app.logger.info("Logging utils not available, using basic logging")
 
 
 def initialize_extensions(app):

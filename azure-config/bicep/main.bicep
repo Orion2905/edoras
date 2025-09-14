@@ -300,9 +300,11 @@ output backendUrl string = 'https://${backendApp.properties.defaultHostName}'
 output frontendUrl string = 'https://${frontendApp.properties.defaultHostName}'
 output sqlServerFqdn string = sqlServer.properties.fullyQualifiedDomainName
 output databaseName string = databaseName
-output databaseConnectionString string = 'mssql+pyodbc://${sqlAdminUsername}:${sqlAdminPassword}@${sqlServer.properties.fullyQualifiedDomainName}/${databaseName}?driver=ODBC+Driver+17+for+SQL+Server'
+// Connection string senza password nell'output per sicurezza
+// output databaseConnectionString string = 'mssql+pyodbc://${sqlAdminUsername}:${sqlAdminPassword}@${sqlServer.properties.fullyQualifiedDomainName}/${databaseName}?driver=ODBC+Driver+17+for+SQL+Server'
 output storageAccountName string = storageAccount.name
-output storageConnectionString string = 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};AccountKey=${storageAccount.listKeys().keys[0].value};EndpointSuffix=core.windows.net'
+// Storage connection string senza chiavi nell'output per sicurezza  
+// output storageConnectionString string = 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};AccountKey=${storageAccount.listKeys().keys[0].value};EndpointSuffix=core.windows.net'
 output keyVaultName string = keyVault.name
 output appInsightsInstrumentationKey string = appInsights.properties.InstrumentationKey
 output resourceGroupName string = resourceGroup().name
