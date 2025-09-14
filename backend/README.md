@@ -140,3 +140,4 @@ pip freeze > requirements.txt
 - **Pytest** - Testing framework
 # Test deployment with publish profile
 # Deploy with fresh publish profile
+# Test deployment with correct publish profile
