@@ -192,3 +192,4 @@ Per problemi o domande:
 ---
 
 **Nota:** Questa struttura è un template di partenza. Personalizza in base alle tue esigenze specifiche!
+# Test deployment
