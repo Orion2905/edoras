@@ -2,6 +2,8 @@
 
 Flask backend per l'applicazione Edoras con architettura API RESTful.
 
+🚀 **Deploy Status**: Ready for Azure App Service
+
 ## Struttura Flask
 
 ```
