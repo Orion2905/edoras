@@ -1,0 +1,129 @@
+name: Deploy to Azure App Service
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+env:
+  AZURE_WEBAPP_NAME: edoras-backend-api
+  AZURE_WEBAPP_PACKAGE_PATH: './backend'
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Create and start virtual environment
+      run: |
+        cd ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+        python -m venv venv
+        source venv/bin/activate
+
+    - name: Install dependencies
+      run: |
+        cd ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+        source venv/bin/activate
+        pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Collect static files (if needed)
+      run: |
+        cd ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+        source venv/bin/activate
+        # Add any build steps here
+
+    - name: Upload artifact for deployment jobs
+      uses: actions/upload-artifact@v3
+      with:
+        name: python-app
+        path: |
+          ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+          !${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/venv/
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: 'Production'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+
+    steps:
+    - name: Download artifact from build job
+      uses: actions/download-artifact@v3
+      with:
+        name: python-app
+        path: .
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Deploy to Azure Web App
+      id: deploy-to-webapp
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{ env.AZURE_WEBAPP_NAME }}
+        startup-command: 'gunicorn --bind=0.0.0.0:8000 --timeout 600 app:app'
+
+    - name: Set App Settings
+      uses: azure/appservice-settings@v1
+      with:
+        app-name: ${{ env.AZURE_WEBAPP_NAME }}
+        app-settings-json: |
+          [
+            {
+              "name": "FLASK_ENV",
+              "value": "production"
+            },
+            {
+              "name": "FLASK_APP", 
+              "value": "app.py"
+            },
+            {
+              "name": "SCM_DO_BUILD_DURING_DEPLOYMENT",
+              "value": "true"
+            },
+            {
+              "name": "DATABASE_URL",
+              "value": "${{ secrets.DATABASE_URL }}"
+            },
+            {
+              "name": "SECRET_KEY",
+              "value": "${{ secrets.SECRET_KEY }}"
+            },
+            {
+              "name": "JWT_SECRET_KEY", 
+              "value": "${{ secrets.JWT_SECRET_KEY }}"
+            },
+            {
+              "name": "AZURE_KEYVAULT_URL",
+              "value": "${{ secrets.AZURE_KEYVAULT_URL }}"
+            },
+            {
+              "name": "AZURE_CLIENT_ID",
+              "value": "${{ secrets.AZURE_CLIENT_ID }}"
+            },
+            {
+              "name": "AZURE_CLIENT_SECRET",
+              "value": "${{ secrets.AZURE_CLIENT_SECRET }}"
+            },
+            {
+              "name": "AZURE_TENANT_ID",
+              "value": "${{ secrets.AZURE_TENANT_ID }}"
+            }
+          ]
+
+    - name: Restart App Service
+      run: |
+        az webapp restart --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }}
