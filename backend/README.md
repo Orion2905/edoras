@@ -138,3 +138,4 @@ pip freeze > requirements.txt
 - **Flask-CORS** - CORS support
 - **Flask-Migrate** - Database migrations
 - **Pytest** - Testing framework
+# Test deployment with publish profile
