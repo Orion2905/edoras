@@ -14,7 +14,7 @@ NC='\033[0m' # No Color
 
 # Configurazione
 RESOURCE_GROUP="rg-edoras-prod"
-LOCATION="West Europe"
+LOCATION="East US"
 APP_SERVICE_PLAN="edoras-app-service-plan"
 WEBAPP_NAME="edoras-backend-api"
 KEYVAULT_NAME="edoras-keyvault"
