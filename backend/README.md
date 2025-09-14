@@ -139,3 +139,4 @@ pip freeze > requirements.txt
 - **Flask-Migrate** - Database migrations
 - **Pytest** - Testing framework
 # Test deployment with publish profile
+# Deploy with fresh publish profile
